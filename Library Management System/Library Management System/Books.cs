@@ -16,6 +16,9 @@ namespace Library_Management_System
 
         public int BookID { get; set; }
 
+        public DateTime DateBorrowed { get; set; }
+        public string StudentID { get; set; }
+
         public Books(string bookName, string author, string genre, int bookID)
         {
             BookName = bookName;
@@ -23,6 +26,13 @@ namespace Library_Management_System
             Genre = genre;
             BookID = bookID;
         }
+        
+        public Books(string bookName, string author, string genre, int bookID, DateTime dateBorrowed, string studentID) : this(bookName, author, genre, bookID)
+        {
+            dateBorrowed = DateBorrowed;
+            studentID = StudentID;
+        }
+        
 
         public static List<Books> bookList = new List<Books>
             {
@@ -81,13 +91,16 @@ namespace Library_Management_System
         }
         public static void EditBook()
         {
-            Console.WriteLine("Enter the name of the book you want to edit");
+            Console.WriteLine("Enter the BookID of the book you want to edit");
             string bookName = Console.ReadLine();
             Books book = bookList.Find(b => b.BookName == bookName);
-            if (book != null)
+            Console.WriteLine($"Is the book you want to edit {book.BookName}, BookID: {book.BookID}");
+            Console.WriteLine("Enter 1 to confirm or 2 to cancel");
+            int confirm = Convert.ToInt32(Console.ReadLine());
+            if (confirm == 1)
             {
                 bool edit = true;
-                do 
+                do
                 {
                     Console.WriteLine("What would you like to change?");
                     Console.WriteLine("1. Book Name");
@@ -120,15 +133,15 @@ namespace Library_Management_System
                         default:
                             Console.WriteLine("Invalid choice");
                             break;
-                    } 
-                }while(edit);
+                    }
+                } while (edit);
 
 
                 Console.WriteLine("Book details updated successfully");
             }
             else
             {
-                Console.WriteLine("Book not found");
+                Console.WriteLine("Edit cancelled");
             }
         }
     }

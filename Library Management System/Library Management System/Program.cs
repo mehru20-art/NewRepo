@@ -190,17 +190,37 @@ namespace Library_Management_System
             Console.WriteLine("Which book would you like to borrow. Enter Exact serial number");
             int bookID = Convert.ToInt32(Console.ReadLine());
             Books book = Books.bookList.Find(b => b.BookID == bookID);
-            Books.BorrowedList.Add(book);
-            Books.bookList.Remove(book);
-            foreach (Books b in Books.BorrowedList)
+            if (book != null)
             {
-                Console.WriteLine($"You have borrowed {b.BookName} by {b.Author}, BookID: {b.BookID} at {d1}");
+                book.DateBorrowed = d1;
+                book.StudentID = User.StudentID.ToString();
+                Books.BorrowedList.Add(book);
+                Books.bookList.Remove(book);
+                Console.WriteLine($"You have borrowed {book.BookName} by {book.Author}, BookID: {book.BookID} at {d1}");
             }
-
+            else
+            {
+                Console.WriteLine("Book not found.");
+            }
         }
         static void ReturnBook()
         {
-
+            DateTime d2 = DateTime.Now;
+            Console.WriteLine("Which book would you like to return. Enter Exact serial number");
+            int bookID = Convert.ToInt32(Console.ReadLine());
+            Books book = Books.BorrowedList.Find(b => b.BookID == bookID);
+            Books.BorrowedList.Remove(book);
+            if ((d2 - book.DateBorrowed).Days > 7)
+            {
+                Console.WriteLine("You have returned the book late. You will be fined.");
+                int fine = (d2 - book.DateBorrowed).Days * 5;
+                Console.WriteLine($"You have been fined {fine} euros. Pay at front desk.");
+            }
+            else
+            {
+                Console.WriteLine("Thank you for returning the book on time");
+            }
+            Books.bookList.Add(book);
         }
     }
 }
