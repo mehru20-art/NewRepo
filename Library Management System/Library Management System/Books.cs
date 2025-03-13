@@ -24,7 +24,7 @@ namespace Library_Management_System
             BookID = bookID;
         }
 
-        static List<Books> bookList = new List<Books>
+        public static List<Books> bookList = new List<Books>
             {
                 new Books("The Alchemist", "Paulo Coelho", "Fiction", 1000),
                 new Books("Pride and Prejudice", "Jane Austen", "Romance", 1001),
@@ -37,6 +37,8 @@ namespace Library_Management_System
                 new Books("Mockingjay", "Suzanne Collins", "Science Fiction", 1008),
                 new Books("The Hunger Games", "Suzanne Collins", "Science Fiction", 1009)
             };
+
+        public static List<Books> BorrowedList = new List<Books>();
 
         static string FilePath = "Books.csv";
         public static void BooksInFile()

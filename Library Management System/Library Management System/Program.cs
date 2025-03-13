@@ -53,41 +53,33 @@ namespace Library_Management_System
             string AdminID = Console.ReadLine();
             Console.WriteLine("Enter Admin Password");
             string AdminPassword = Console.ReadLine();
-            if (AdminID == AdminUsername)
+            if (AdminID == AdminUsername && AdminPassword == AdminSetPassword)
             {
-                if(AdminPassword == AdminSetPassword)
+                Console.WriteLine("Login successful");
+                Console.WriteLine("1. Add Book");
+                Console.WriteLine("2. Edit Book");
+                Console.WriteLine("3. Delete Book");
+                Console.WriteLine("4. Exit");
+                Console.WriteLine("Enter your choice: ");
+                int choice = Convert.ToInt32(Console.ReadLine());
+                switch (choice)
                 {
-                    Console.WriteLine("Login successful");
-                    Console.WriteLine("1. Add Book");
-                    Console.WriteLine("2. Edit Book");
-                    Console.WriteLine("3. Delete Book");
-                    Console.WriteLine("4. Exit");
-                    Console.WriteLine("Enter your choice: ");
-                    int choice = Convert.ToInt32(Console.ReadLine());
-                    switch (choice)
-                    {
-                        case 1:
-                            Books.AddBookToList();
-                            break;
-                        case 2:
-                            Books.EditBook();
-                            break;
-                        case 3:
-                            //DeleteBook();
-                            break;
-                        case 4:
-                            StartMenu();
-                            break;
-                        default:
-                            Console.WriteLine("Invalid choice");
-                            break;
-                    }
+                    case 1:
+                        Books.AddBookToList();
+                        break;
+                    case 2:
+                        Books.EditBook();
+                        break;
+                    case 3:
+                        //DeleteBook();
+                        break;
+                    case 4:
+                        StartMenu();
+                        break;
+                    default:
+                        Console.WriteLine("Invalid choice");
+                        break;
                 }
-                else
-                {
-                    Console.WriteLine("Invalid Password");
-                }
-
             }
             else
             {
@@ -117,50 +109,50 @@ namespace Library_Management_System
                 default:
                     Console.WriteLine("Invalid choice");
                     break;
-            }
-            void Register()
+            } 
+        }
+        public static void Register()
+        { 
+            Console.WriteLine("Enter your StudentID");
+            User.StudentID = Convert.ToInt32(Console.ReadLine());
+            Console.WriteLine("Enter your Username:");
+            User.Username = Console.ReadLine();
+            Console.WriteLine("Enter your password:");
+            User.Password = Console.ReadLine();
+
+            User user = new User(User.Username, User.Password, User.StudentID);
+
+            using (StreamWriter sw = new StreamWriter(FilePath, true))
             {
-                Console.WriteLine("Enter your StudentID");
-                User.StudentID = Convert.ToInt32(Console.ReadLine());
-                Console.WriteLine("Enter your Username:");
-                User.Username = Console.ReadLine();
-                Console.WriteLine("Enter your password:");
-                User.Password = Console.ReadLine();
-                
-                User user = new User(User.Username, User.Password, User.StudentID);
-                
-                using (StreamWriter sw = new StreamWriter(FilePath, true))
-                {
-                    sw.WriteLine("Mehreen, bulletproof7," + 13456);  
-                    sw.WriteLine(User.Username + "," + User.Password + "," + User.StudentID);
-                    Console.WriteLine("User saved to csv file");
-                }
-
-                Console.WriteLine("User registered successfully");
-
+                sw.WriteLine("Mehreen, bulletproof7," + 13456);
+                sw.WriteLine(User.Username + "," + User.Password + "," + User.StudentID);
+                Console.WriteLine("User saved to csv file");
             }
-            bool Login()
-            {
-                Console.WriteLine("Enter your username:");
-                string username = Console.ReadLine();
-                Console.WriteLine("Enter your password:");
-                string password = Console.ReadLine();
 
-                string[] lines = File.ReadAllLines(FilePath);
-                foreach (string line in lines)
+            Console.WriteLine("User registered successfully");
+
+        }
+        public static bool Login()
+        {
+            Console.WriteLine("Enter your username:");
+            string username = Console.ReadLine();
+            Console.WriteLine("Enter your password:");
+            string password = Console.ReadLine();
+
+            string[] lines = File.ReadAllLines(FilePath);
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(',');
+                if (parts[0] == username && parts[1] == password)
                 {
-                    string[] parts = line.Split(',');
-                    if (parts[0] == username && parts[1] == password)
-                    {
                         Console.WriteLine("Login successful");
                         BookStartMenu();
                         return true; // Username and password match
-                    }
                 }
-
-                Console.WriteLine("Invalid username or password");
-                return false; // Invalid credentials
             }
+
+            Console.WriteLine("Invalid username or password");
+            return false; // Invalid credentials
         }
         public static void BookStartMenu()
         {
@@ -180,7 +172,7 @@ namespace Library_Management_System
                     BorrowBook();
                     break;
                 case 3:
-                    //ReturnBook();
+                    ReturnBook();
                     break;
                 case 4:
                     StartMenu();
@@ -193,8 +185,21 @@ namespace Library_Management_System
 
         static void BorrowBook()
         {
+            DateTime d1 = DateTime.Now;
             Books.BooksInFile();
             Console.WriteLine("Which book would you like to borrow. Enter Exact serial number");
+            int bookID = Convert.ToInt32(Console.ReadLine());
+            Books book = Books.bookList.Find(b => b.BookID == bookID);
+            Books.BorrowedList.Add(book);
+            Books.bookList.Remove(book);
+            foreach (Books b in Books.BorrowedList)
+            {
+                Console.WriteLine($"You have borrowed {b.BookName} by {b.Author}, BookID: {b.BookID} at {d1}");
+            }
+
+        }
+        static void ReturnBook()
+        {
 
         }
     }
