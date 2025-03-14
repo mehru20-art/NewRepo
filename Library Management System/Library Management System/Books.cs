@@ -17,7 +17,7 @@ namespace Library_Management_System
         public int BookID { get; set; }
 
         public DateTime DateBorrowed { get; set; }
-        public string StudentID { get; set; }
+        public int StudentID { get; set; }
 
         public Books(string bookName, string author, string genre, int bookID)
         {
@@ -27,7 +27,7 @@ namespace Library_Management_System
             BookID = bookID;
         }
         
-        public Books(string bookName, string author, string genre, int bookID, DateTime dateBorrowed, string studentID) : this(bookName, author, genre, bookID)
+        public Books(string bookName, string author, string genre, int bookID, DateTime dateBorrowed, int studentID) : this(bookName, author, genre, bookID)
         {
             dateBorrowed = DateBorrowed;
             studentID = StudentID;
@@ -86,14 +86,14 @@ namespace Library_Management_System
             bookList.Add(book);
             using (StreamWriter Writer = new StreamWriter(FilePath, true))
             {
-                Writer.WriteLine($"{bookName}, by {author}, Genre: {genre}, ID: {bookID}");
+                Writer.WriteLine($"{bookName}, {author}, {genre}, {bookID}");
             }
         }
         public static void EditBook()
         {
             Console.WriteLine("Enter the BookID of the book you want to edit");
-            string bookName = Console.ReadLine();
-            Books book = bookList.Find(b => b.BookName == bookName);
+            int LookupbookID = Convert.ToInt32(Console.ReadLine());
+            Books book = bookList.Find(b => b.BookID == LookupbookID);
             Console.WriteLine($"Is the book you want to edit {book.BookName}, BookID: {book.BookID}");
             Console.WriteLine("Enter 1 to confirm or 2 to cancel");
             int confirm = Convert.ToInt32(Console.ReadLine());
@@ -138,10 +138,30 @@ namespace Library_Management_System
 
 
                 Console.WriteLine("Book details updated successfully");
+                
             }
             else
             {
                 Console.WriteLine("Edit cancelled");
+            }
+        }
+
+        public static void DeleteBook()
+        {
+            Console.WriteLine("Enter the BookID of the book you want to delete");
+            int DeleteBookID = Convert.ToInt32(Console.ReadLine());
+            Books book = bookList.Find(b => b.BookID == DeleteBookID);
+            Console.WriteLine($"Is the book you want to delete {book.BookName}, by {book.Author} BookID: {book.BookID}");
+            Console.WriteLine("Enter 1 to confirm or 2 to cancel");
+            int confirm = Convert.ToInt32(Console.ReadLine());
+            if (confirm == 1)
+            {
+                bookList.Remove(book);
+                Console.WriteLine("Book deleted successfully");
+            }
+            else
+            {
+                Console.WriteLine("Delete cancelled");
             }
         }
     }
