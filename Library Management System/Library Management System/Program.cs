@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Diagnostics.Eventing.Reader;
 
 namespace Library_Management_System
 {
@@ -21,14 +22,22 @@ namespace Library_Management_System
 
         private static void StartMenu()
         {
-            Console.WriteLine("Would you like to login as a user or an admin?");
+            int choice;
+            Console.WriteLine("\nWould you like to login as a user or an admin?");
             Console.WriteLine("1. User");
             Console.WriteLine("2. Admin");
-            Console.WriteLine("3. Exit");
-            Console.WriteLine("4. View Available Books");
+            Console.WriteLine("3. Exit Program");
             Console.WriteLine("Enter your choice: ");
-            int choice = Convert.ToInt32(Console.ReadLine());
-            if (choice == 1|| choice == 2|| choice == 3|| choice == 4)
+            string enteredchoice = Console.ReadLine();
+            if (!int.TryParse(enteredchoice, out int result))
+            {
+                Console.WriteLine("Invalid choice");
+                StartMenu();
+            }
+            choice = Convert.ToInt32(enteredchoice);
+
+
+            if (choice == 1 || choice == 2 || choice == 3)
             {
                 switch (choice)
                 {
@@ -41,10 +50,6 @@ namespace Library_Management_System
                     case 3:
                         Environment.Exit(0);
                         break;
-                    case 4:
-                        Books.BooksInFile();
-                        StartMenu();
-                        break;
                     default:
                         Console.WriteLine("Invalid choice");
                         break;
@@ -55,11 +60,11 @@ namespace Library_Management_System
                 Console.WriteLine("Invalid choice");
                 StartMenu();
             }
-            
+
         }
         private static void Admin()
         {
-            Console.WriteLine("Enter AdminID");
+            Console.WriteLine("\nEnter AdminID");
             string AdminID = Console.ReadLine();
             Console.WriteLine("Enter Admin Password");
             string AdminPassword = Console.ReadLine();
@@ -75,8 +80,8 @@ namespace Library_Management_System
 
         private static void AdminBookEditMenu()
         {
-            Console.WriteLine("Login successful");
-            Console.WriteLine("1. Add Book");
+            Console.WriteLine("\nLogin successful");
+            Console.WriteLine("\n1. Add Book");
             Console.WriteLine("2. Edit Book");
             Console.WriteLine("3. Delete Book");
             Console.WriteLine("4. Exit");
@@ -107,7 +112,7 @@ namespace Library_Management_System
 
         public static void UserRegisterorLoginMenu()
         {
-            Console.WriteLine("1. Register");
+            Console.WriteLine("\n1. Register");
             Console.WriteLine("2. Login");
             Console.WriteLine("3. Return to main menu");
             Console.WriteLine("Enter your choice: ");
@@ -128,16 +133,19 @@ namespace Library_Management_System
                 default:
                     Console.WriteLine("Invalid choice");
                     break;
-            } 
+            }
         }
         public static void Register()
-        { 
-            Console.WriteLine("Enter your StudentID");
-            User.StudentID = Convert.ToInt32(Console.ReadLine());
-            Console.WriteLine("Enter your Username:");
-            User.Username = Console.ReadLine();
-            Console.WriteLine("Enter your password:");
-            User.Password = Console.ReadLine();
+        {
+            Console.WriteLine("\nEnter your StudentID (5 digits)");
+            string studentIDInput = (Console.ReadLine());
+            while (!int.TryParse(studentIDInput, out int studentID) || studentIDInput.Length != 5)
+            {
+                Console.WriteLine("Invalid StudentID. Please enter a 5-digit number:");
+                studentIDInput = Console.ReadLine();
+            }
+            User.Username = GetValidInput("Enter your Username:");
+            User.Password = GetValidInput("Enter your password:");
 
             User user = new User(User.Username, User.Password, User.StudentID);
 
@@ -148,12 +156,12 @@ namespace Library_Management_System
                 Console.WriteLine("User saved to csv file");
             }
 
-            Console.WriteLine("User registered successfully");
+            Console.WriteLine("\nUser registered successfully");
 
         }
         public static bool Login()
         {
-            Console.WriteLine("Enter your username:");
+            Console.WriteLine("\nEnter your username:");
             string username = Console.ReadLine();
             Console.WriteLine("Enter your password:");
             string password = Console.ReadLine();
@@ -175,11 +183,11 @@ namespace Library_Management_System
                 }
             }
             Console.WriteLine("Invalid username or password");
-            return false; 
+            return false;
         }
         public static void BookStartMenu()
         {
-            Console.WriteLine("1. View Books");
+            Console.WriteLine("\n1. View Books");
             Console.WriteLine("2. Borrow Book");
             Console.WriteLine("3. Return Book");
             Console.WriteLine("4. Return to main menu");
@@ -193,9 +201,11 @@ namespace Library_Management_System
                     break;
                 case 2:
                     BorrowBook();
+                    BookStartMenu();
                     break;
                 case 3:
                     ReturnBook();
+                    BookStartMenu();
                     break;
                 case 4:
                     StartMenu();
@@ -203,14 +213,15 @@ namespace Library_Management_System
                 default:
                     Console.WriteLine("Invalid choice");
                     break;
-            } 
+            }
         }
 
         static void BorrowBook()
         {
             DateTime d1 = DateTime.Now;
+            Console.WriteLine("");
             Books.BooksInFile();
-            Console.WriteLine("Which book would you like to borrow. Enter Exact serial number");
+            Console.WriteLine("\nWhich book would you like to borrow. Enter Exact serial number");
             int bookID = Convert.ToInt32(Console.ReadLine());
             Books book = Books.bookList.Find(b => b.BookID == bookID);
             if (book != null)
@@ -228,23 +239,43 @@ namespace Library_Management_System
         }
         static void ReturnBook()
         {
-            
-            DateTime d2 = DateTime.Now;
-            Console.WriteLine("Which book would you like to return. Enter Exact serial number");
-            int bookID = Convert.ToInt32(Console.ReadLine());
-            Books book = Books.BorrowedList.Find(b => b.BookID == bookID);
-            Books.BorrowedList.Remove(book);
-            if ((d2 - book.DateBorrowed).Seconds > 7)
+            Books book = Books.BorrowedList.Find(b => b.StudentID == StudentIDLoggedIn);
+            if (book != null)
             {
-                Console.WriteLine($"{book.StudentID} have returned the book late. You will be fined.");
-                int fine = (d2 - book.DateBorrowed).Seconds * 5;
-                Console.WriteLine($"You have been fined {fine} euros. Pay at front desk.");
+                DateTime d2 = DateTime.Now;
+                Console.WriteLine("\nWhich book would you like to return. Enter Exact serial number");
+                int bookID = Convert.ToInt32(Console.ReadLine());
+                Books bookToReturn = Books.BorrowedList.Find(b => b.BookID == bookID);
+                Books.BorrowedList.Remove(bookToReturn);
+                if ((d2 - bookToReturn.DateBorrowed).Days > 7)
+                {
+                    Console.WriteLine($"\n{bookToReturn.StudentID} have returned the book late. You will be fined.");
+                    int fine = (d2 - bookToReturn.DateBorrowed).Days * 5;
+                    Console.WriteLine($"You have been fined {fine} euros. Pay at front desk.");
+                }
+                else
+                {
+                    Console.WriteLine($"\nThank you for returning the book on time, {bookToReturn.StudentID}");
+                }
+                Books.bookList.Add(book);
             }
             else
             {
-                Console.WriteLine($"Thank you for returning the book on time, {book.StudentID}");
+                Console.WriteLine("You have not borrowed any books yet");
             }
-            Books.bookList.Add(book);
+
+
+        }
+        static string GetValidInput(string question)
+        {
+            Console.WriteLine(question);
+            string validate = Console.ReadLine();
+            while (string.IsNullOrWhiteSpace(validate) && validate.Length >= 6)
+            {
+                Console.WriteLine("Input cannot be empty (use at least 6 characters). Try again:");
+                validate = Console.ReadLine();
+            }
+            return validate;
         }
     }
 }

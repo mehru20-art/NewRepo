@@ -73,13 +73,13 @@ namespace Library_Management_System
         }
         public static void AddBookToList()
         {
-            Console.WriteLine("Enter Book name :");
+            Console.WriteLine("\nEnter Book name :");
             string bookName = Console.ReadLine();
-            Console.WriteLine("Enter Author name :");
+            Console.WriteLine("\nEnter Author name :");
             string author = Console.ReadLine();
-            Console.WriteLine("Enter Genre");
+            Console.WriteLine("\nEnter Genre");
             string genre = Console.ReadLine();
-            Console.WriteLine("Enter BookID");
+            Console.WriteLine("\nEnter BookID");
             int bookID = Convert.ToInt32(Console.ReadLine());
 
             Books book = new Books(bookName, author, genre, bookID);
@@ -102,7 +102,7 @@ namespace Library_Management_System
                 bool edit = true;
                 do
                 {
-                    Console.WriteLine("What would you like to change?");
+                    Console.WriteLine("\nWhat would you like to change?");
                     Console.WriteLine("1. Book Name");
                     Console.WriteLine("2. Author");
                     Console.WriteLine("3. Genre");
@@ -112,19 +112,19 @@ namespace Library_Management_System
                     switch (choice)
                     {
                         case 1:
-                            Console.WriteLine("Enter new book name");
+                            Console.WriteLine("\nEnter new book name");
                             book.BookName = Console.ReadLine();
                             break;
                         case 2:
-                            Console.WriteLine("Enter new author name");
+                            Console.WriteLine("\nEnter new author name");
                             book.Author = Console.ReadLine();
                             break;
                         case 3:
-                            Console.WriteLine("Enter new genre");
+                            Console.WriteLine("\nEnter new genre");
                             book.Genre = Console.ReadLine();
                             break;
                         case 4:
-                            Console.WriteLine("Enter new BookID");
+                            Console.WriteLine("\nEnter new BookID");
                             book.BookID = Convert.ToInt32(Console.ReadLine());
                             break;
                         case 5:
@@ -148,7 +148,7 @@ namespace Library_Management_System
 
         public static void DeleteBook()
         {
-            Console.WriteLine("Enter the BookID of the book you want to delete");
+            Console.WriteLine("\nEnter the BookID of the book you want to delete");
             int DeleteBookID = Convert.ToInt32(Console.ReadLine());
             Books book = bookList.Find(b => b.BookID == DeleteBookID);
             Console.WriteLine($"Is the book you want to delete {book.BookName}, by {book.Author} BookID: {book.BookID}");
