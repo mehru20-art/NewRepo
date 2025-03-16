@@ -144,44 +144,49 @@ namespace Library_Management_System
                 Console.WriteLine("Invalid StudentID. Please enter a 5-digit number:");
                 studentIDInput = Console.ReadLine();
             }
+            User.StudentID = Convert.ToInt32(studentIDInput);
             User.Username = GetValidInput("Enter your Username:");
-            User.Password = GetValidInput("Enter your password:");
-
+            string passwordbeforehash = GetValidInput("Enter your password:");
+            User.Password = User.HashingPassword(passwordbeforehash);
             User user = new User(User.Username, User.Password, User.StudentID);
 
             using (StreamWriter sw = new StreamWriter(FilePath, true))
             {
-                sw.WriteLine("Mehreen, bulletproof7," + 13456);
                 sw.WriteLine(User.Username + "," + User.Password + "," + User.StudentID);
-                Console.WriteLine("User saved to csv file");
             }
 
             Console.WriteLine("\nUser registered successfully");
-
         }
         public static bool Login()
         {
-            Console.WriteLine("\nEnter your username:");
-            string username = Console.ReadLine();
-            Console.WriteLine("Enter your password:");
-            string password = Console.ReadLine();
             if (!File.Exists(FilePath))
             {
                 Console.WriteLine("Error: User data file not found.");
                 return false;
             }
+
+            Console.WriteLine("\nEnter your username:");
+            string username = Console.ReadLine();
+            Console.WriteLine("Enter your password:");
+            string passwordbeforehashcheck = Console.ReadLine();
+            string hashedpasswordtocheck = User.HashingPassword(passwordbeforehashcheck);
+
             string[] lines = File.ReadAllLines(FilePath);
             foreach (string line in lines)
             {
                 string[] parts = line.Split(',');
-                if (parts[0] == username && parts[1] == password)
+
+                if (parts[0] == username && parts[1] == hashedpasswordtocheck)
                 {
+                    Console.WriteLine("Correct Username *clap*");
+
                     StudentIDLoggedIn = Convert.ToInt16(parts[2]);
                     Console.WriteLine($"Welcome back {StudentIDLoggedIn}");
                     BookStartMenu();
                     return true;
                 }
             }
+
             Console.WriteLine("Invalid username or password");
             return false;
         }
@@ -270,9 +275,9 @@ namespace Library_Management_System
         {
             Console.WriteLine(question);
             string validate = Console.ReadLine();
-            while (string.IsNullOrWhiteSpace(validate) && validate.Length >= 6)
+            while (string.IsNullOrWhiteSpace(validate) )
             {
-                Console.WriteLine("Input cannot be empty (use at least 6 characters). Try again:");
+                Console.WriteLine("Input cannot be empty. Try again:");
                 validate = Console.ReadLine();
             }
             return validate;
