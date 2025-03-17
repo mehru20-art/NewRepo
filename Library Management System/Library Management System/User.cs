@@ -29,8 +29,6 @@ namespace Library_Management_System
             foreach (byte b in data)
                 sb.Append(b.ToString("x2"));
             return sb.ToString();
-            //data = new System.Security.Cryptography.SHA256Managed().ComputeHash(data);
-            //return System.Text.Encoding.ASCII.GetString(data);
         }
     }
 }

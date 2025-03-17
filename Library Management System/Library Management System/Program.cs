@@ -116,7 +116,13 @@ namespace Library_Management_System
             Console.WriteLine("2. Login");
             Console.WriteLine("3. Return to main menu");
             Console.WriteLine("Enter your choice: ");
-            int choice = Convert.ToInt32(Console.ReadLine());
+            string enteredchoice = Console.ReadLine();
+            if (!int.TryParse(enteredchoice, out int result))
+            {
+                Console.WriteLine("Invalid choice");
+                StartMenu();
+            }
+            int choice = Convert.ToInt32(enteredchoice);
             switch (choice)
             {
                 case 1:
@@ -234,8 +240,12 @@ namespace Library_Management_System
                 book.DateBorrowed = d1;
                 book.StudentID = StudentIDLoggedIn;
                 Books.BorrowedList.Add(book);
+                using (StreamWriter writetofile = new StreamWriter(Books.FilePath2, true))
+                {
+                    writetofile.WriteLine($"{book.StudentID},{book.BookName},{book.Genre},{book.Author},{book.BookID},{d1}");
+                }
                 Books.bookList.Remove(book);
-                Console.WriteLine($"{book.StudentID} has borrowed {book.BookName} by {book.Author}, BookID: {book.BookID} at {d1}");
+                Console.WriteLine($"{book.StudentID} has borrowed {book.BookName} by {book.Author},Genre :{book.Genre}, BookID: {book.BookID} at {d1}");
             }
             else
             {
@@ -244,32 +254,78 @@ namespace Library_Management_System
         }
         static void ReturnBook()
         {
-            Books book = Books.BorrowedList.Find(b => b.StudentID == StudentIDLoggedIn);
-            if (book != null)
+            if (!File.Exists(Books.FilePath2))
+            {
+                Console.WriteLine("Error: Borrowed books data file not found.");
+                return;
+            }
+
+            List<Books> borrowedBooks = new List<Books>();
+            string[] lines = File.ReadAllLines(Books.FilePath2);
+            foreach (string line in lines.Skip(1)) 
+            {
+                string[] parts = line.Split(',');
+                int studentID = Convert.ToInt32(parts[0]);
+                if (studentID == StudentIDLoggedIn)
+                {
+                    string bookName = parts[1];
+                    string author = parts[3];
+                    string genre = parts[2];
+                    int bookID = Convert.ToInt32(parts[4]);
+                    DateTime dateBorrowed = DateTime.ParseExact(parts[5], "dd/MM/yyyy HH:mm:ss", null);
+                    Console.WriteLine(DateTime.ParseExact(parts[5], "dd/MM/yyyy HH:mm:ss", null));
+                    borrowedBooks.Add(new Books(bookName, author, genre, bookID, dateBorrowed, studentID));
+                }
+            }
+
+            if (borrowedBooks.Count == 0)
+            {
+                Console.WriteLine("You have not borrowed any books yet");
+                return;
+            }
+
+            Console.WriteLine("\nBooks you have borrowed:");
+            foreach (Books book in borrowedBooks)
+            {
+                Console.WriteLine($"BookID: {book.BookID}, BookName: {book.BookName}, Author: {book.Author}, DateBorrowed: {book.DateBorrowed}");
+            }
+
+            Console.WriteLine("\nWhich book would you like to return? Enter the exact BookID:");
+            int bookIDToReturn = Convert.ToInt32(Console.ReadLine());
+            Books bookToReturn = borrowedBooks.Find(b => b.BookID == bookIDToReturn);
+            if (bookToReturn != null)
             {
                 DateTime d2 = DateTime.Now;
-                Console.WriteLine("\nWhich book would you like to return. Enter Exact serial number");
-                int bookID = Convert.ToInt32(Console.ReadLine());
-                Books bookToReturn = Books.BorrowedList.Find(b => b.BookID == bookID);
-                Books.BorrowedList.Remove(bookToReturn);
                 if ((d2 - bookToReturn.DateBorrowed).Days > 7)
                 {
                     Console.WriteLine($"\n{bookToReturn.StudentID} have returned the book late. You will be fined.");
-                    int fine = (d2 - bookToReturn.DateBorrowed).Days * 5;
+                    int fine = (d2 - bookToReturn.DateBorrowed).Days * 10;
                     Console.WriteLine($"You have been fined {fine} euros. Pay at front desk.");
                 }
                 else
                 {
                     Console.WriteLine($"\nThank you for returning the book on time, {bookToReturn.StudentID}");
                 }
-                Books.bookList.Add(book);
+                Books.bookList.Add(bookToReturn);
+
+                using (StreamWriter Writer = new StreamWriter(Books.FilePath2))
+                {
+                    Writer.WriteLine("StudentID,BookName,Author,Genre,BookID,DateBorrowed");
+                    foreach (Books b in Books.BorrowedList)
+                    {
+                        if (b.BookID != bookIDToReturn)
+                        {
+                            Writer.WriteLine($"{b.StudentID},{b.BookName},{b.Author},{b.Genre},{b.BookID},{b.DateBorrowed:yyyy-MM-dd HH:mm:ss}");
+                        }
+                    }
+                }
+
+                Books.BorrowedList.Remove(bookToReturn);
             }
             else
             {
-                Console.WriteLine("You have not borrowed any books yet");
+                Console.WriteLine("Book not found.");
             }
-
-
         }
         static string GetValidInput(string question)
         {

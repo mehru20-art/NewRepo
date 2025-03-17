@@ -29,8 +29,8 @@ namespace Library_Management_System
         
         public Books(string bookName, string author, string genre, int bookID, DateTime dateBorrowed, int studentID) : this(bookName, author, genre, bookID)
         {
-            dateBorrowed = DateBorrowed;
-            studentID = StudentID;
+            DateBorrowed = dateBorrowed;
+            StudentID = studentID;
         }
         
 
@@ -50,7 +50,9 @@ namespace Library_Management_System
 
         public static List<Books> BorrowedList = new List<Books>();
 
-        static string FilePath = "Books.csv";
+        public static string FilePath = "BooksAvailable.csv";
+        public static string FilePath2 = "BooksBorrowed.csv";
+
         public static void BooksInFile()
         {
             using (StreamWriter Writer = new StreamWriter(FilePath))
@@ -94,6 +96,11 @@ namespace Library_Management_System
             Console.WriteLine("Enter the BookID of the book you want to edit");
             int LookupbookID = Convert.ToInt32(Console.ReadLine());
             Books book = bookList.Find(b => b.BookID == LookupbookID);
+            if (book == null)
+            {
+                Console.WriteLine("Book may be borrowed or does not exist.");
+                return;
+            }
             Console.WriteLine($"Is the book you want to edit {book.BookName}, BookID: {book.BookID}");
             Console.WriteLine("Enter 1 to confirm or 2 to cancel");
             int confirm = Convert.ToInt32(Console.ReadLine());
@@ -136,6 +143,14 @@ namespace Library_Management_System
                     }
                 } while (edit);
 
+                using (StreamWriter updatebookentry = new StreamWriter(FilePath))
+                {
+                    updatebookentry.WriteLine("BookName,Author,Genre,ID Number");
+                    foreach (Books books in bookList)
+                    {
+                        updatebookentry.WriteLine($"{books.BookName},{books.Author},{books.Genre},{books.BookID}");
+                    }
+                }
 
                 Console.WriteLine("Book details updated successfully");
                 
@@ -151,12 +166,24 @@ namespace Library_Management_System
             Console.WriteLine("\nEnter the BookID of the book you want to delete");
             int DeleteBookID = Convert.ToInt32(Console.ReadLine());
             Books book = bookList.Find(b => b.BookID == DeleteBookID);
+            if (book == null)
+            {
+                Console.WriteLine("Book may be borrowed or does not exist.");
+            }
             Console.WriteLine($"Is the book you want to delete {book.BookName}, by {book.Author} BookID: {book.BookID}");
             Console.WriteLine("Enter 1 to confirm or 2 to cancel");
             int confirm = Convert.ToInt32(Console.ReadLine());
             if (confirm == 1)
             {
                 bookList.Remove(book);
+                using (StreamWriter updatebookentry = new StreamWriter(FilePath))
+                {
+                    updatebookentry.WriteLine("BookName,Author,Genre,ID Number");
+                    foreach (Books books in bookList)
+                    {
+                        updatebookentry.WriteLine($"{books.BookName},{books.Author},{books.Genre},{books.BookID}");
+                    }
+                }
                 Console.WriteLine("Book deleted successfully");
             }
             else
