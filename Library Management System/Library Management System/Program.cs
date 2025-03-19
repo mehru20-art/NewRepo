@@ -273,7 +273,6 @@ namespace Library_Management_System
                     string genre = parts[2];
                     int bookID = Convert.ToInt32(parts[4]);
                     DateTime dateBorrowed = DateTime.ParseExact(parts[5], "dd/MM/yyyy HH:mm:ss", null);
-                    Console.WriteLine(DateTime.ParseExact(parts[5], "dd/MM/yyyy HH:mm:ss", null));
                     borrowedBooks.Add(new Books(bookName, author, genre, bookID, dateBorrowed, studentID));
                 }
             }
