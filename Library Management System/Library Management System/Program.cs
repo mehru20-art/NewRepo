@@ -295,10 +295,13 @@ namespace Library_Management_System
             if (bookToReturn != null)
             {
                 DateTime d2 = DateTime.Now;
-                if ((d2 - bookToReturn.DateBorrowed).Days > 7)
+                if ((d2 - bookToReturn.DateBorrowed).Seconds > 7)
                 {
+                    DateTime d3 = bookToReturn.DateBorrowed;
+                    int fine = (((d2 - d3).Seconds)-7) * 10;
+                    //Console.WriteLine(d2);
                     Console.WriteLine($"\n{bookToReturn.StudentID} have returned the book late. You will be fined.");
-                    int fine = (d2 - bookToReturn.DateBorrowed).Days * 10;
+                    //int fine = (d2 - bookToReturn.DateBorrowed).Days * 10;
                     Console.WriteLine($"You have been fined {fine} euros. Pay at front desk.");
                 }
                 else
